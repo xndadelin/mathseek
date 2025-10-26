@@ -82,7 +82,7 @@ export default function Home() {
                        About MathSeek
                       </Title>
                       <Text size="lg" c="dimmed" style={{ textAlign: 'center' }}>
-                        MathSeek is an AI-powered math problem solver that provides step-by-step solutions and explanations for a wide range of mathematical concepts. Whether you're struggling with algebra, calculus, or geometry, MathSeek is here to help you understand and get the answers you need.
+                        MathSeek is an AI-powered math problem solver that provides step-by-step solutions and explanations for a wide range of mathematical concepts. Whether you&apos;re struggling with algebra, calculus, or geometry, MathSeek is here to help you understand and get the answers you need.
                       </Text>
                       <SimpleGrid spacing={"xl"} cols={{ base: 1, sm: 3 }} >
                          <Paper p="md" radius="md" withBorder>
@@ -99,7 +99,7 @@ export default function Home() {
                             What is DeepSeek AI?
                           </Text>
                           <Text size="sm" c="dimmed">
-                            DeepSeek AI is a Chinese AI startup that develops open-source large language models (LLMs) and offers a conversational AI product similar to ChatGPT. We use their API to power MathSeeks's problem-solving capabilities.
+                            DeepSeek AI is a Chinese AI startup that develops open-source large language models (LLMs) and offers a conversational AI product similar to ChatGPT. We use their API to power MathSeeks&apos;s problem-solving capabilities.
                           </Text>
                         </Paper>
                         <Paper p="md" radius="md" withBorder>
@@ -116,7 +116,7 @@ export default function Home() {
                             Is MathSeek free to use?
                           </Text>
                           <Text size="sm" c="dimmed">
-                            Oh, yes! MathSeek is completely free to use. It's an open source project. We believe in providing accessible tools to help students learn.
+                            Oh, yes! MathSeek is completely free to use. It&apos;s an open source project. We believe in providing accessible tools to help students learn.
                           </Text>
                         </Paper>
                         <Paper p="md" radius="md" withBorder>
@@ -133,7 +133,7 @@ export default function Home() {
                             Can I trust the solutions provided
                           </Text>
                           <Text size="sm" c="dimmed">
-                            Yes, but it's always a good idea to double check the solutions provided by MathSeek, especially for complex problems. While we strive for accuracy, occasional errors may occur.
+                            Yes, but it&apos;s always a good idea to double check the solutions provided by MathSeek, especially for complex problems. While we strive for accuracy, occasional errors may occur.
                           </Text>
                         </Paper>
                       </SimpleGrid>
