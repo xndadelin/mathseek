@@ -1,6 +1,7 @@
 'use client';
-import { Anchor, AppShell, Badge, Box, Button, Card, Container, Divider, Group, Paper, SimpleGrid, Stack, Text, TextInput, ThemeIcon, Title } from "@mantine/core";
+import { Anchor, AppShell, Badge, Box, Button, Card, Container, Divider, Group, Paper, SimpleGrid, Stack, Text, TextInput, ThemeIcon, Title, Image } from "@mantine/core";
 import { Icon123, IconArrowDownCircle, IconArrowDownRhombusFilled, IconBrain, IconFreeRights, IconMath, IconQuestionMark, IconSettings } from "@tabler/icons-react";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -197,6 +198,56 @@ export default function Home() {
                     </SimpleGrid>
                   </Container>
               </Container>
+              <Divider mb={80} w={200} mx="auto" />
+              <Container
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '2rem',
+                  marginBottom: '80',
+                  justifyContent: 'center'
+                }}
+              >
+                <Text fz={40}>
+                  We know it&apos;s tough, but with MathSeek, we&apos;ve made it simple and fun!
+                </Text>
+                <Image
+                  src="https://hc-cdn.hel1.your-objectstorage.com/s/v3/e4a06e09270ddc83e06c3471a97c8701f7466efe_laptop_work.svg"
+                  alt="laptop working"
+                  width={600}
+                  height={400}
+                />
+              </Container>
+               <Divider my={80} w={200} mx="auto" />
+              <Container
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '2rem',
+                  marginBottom: '80',
+                  justifyContent: 'center',
+                  backgroundColor: 'var(--mantine-color-teal-9)',
+                  color: 'var(--mantine-color-white-0)',
+                  borderRadius: '16px',
+                  padding: 40
+                }}
+              >
+                <Title order={3} fz="2rem">
+                  🤠 So, what are you waiting for? Join us and start today!
+                </Title>
+                <Text fz="1.2rem">
+                  It would be our pleasure to have you on board! We are still in
+                  beta, so if you have any feedback, please let us know! We are
+                  always looking for ways to improve our platform and make it better
+                  for you.
+                  <Link color="dark" href="/auth">
+                    <Button color="dark" mt={20}>
+                      Sign up now, it&apos;s free!
+                    </Button>
+                  </Link>
+                </Text>
+              </Container>
+              <div style={{height: '200px'}}></div>
           </Box>
       </AppShell.Main>
     </AppShell>
