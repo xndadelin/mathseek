@@ -9,7 +9,7 @@ const queryClient = new QueryClient();
 export function Providers({ children} : { children: ReactNode }) {
     return (
         <QueryClientProvider client={queryClient}>
-            <MantineProvider>
+            <MantineProvider defaultColorScheme="dark" withGlobalClasses>
                 {children}
             </MantineProvider>
         </QueryClientProvider>
