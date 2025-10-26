@@ -1,11 +1,18 @@
 'use client';
-import { Anchor, AppShell, Badge, Box, Button, Card, Container, Divider, Group, Paper, SimpleGrid, Stack, Text, TextInput, ThemeIcon, Title, Image } from "@mantine/core";
-import { Icon123, IconArrowDownCircle, IconArrowDownRhombusFilled, IconBrain, IconFreeRights, IconMath, IconQuestionMark, IconSettings } from "@tabler/icons-react";
-import Link from "next/link";
+import { Anchor, AppShell, Badge, Box, Button, Card, Container, Divider, Group, Paper, SimpleGrid, Stack, Text, ThemeIcon, Title, Image } from "@mantine/core";
+import { Icon123, IconArrowDownRhombusFilled, IconBrain, IconFreeRights, IconMath, IconQuestionMark, IconSettings } from "@tabler/icons-react";
 import auth from "./utils/auth/auth";
+import useUser from "./utils/queries/useUser";
+import Loading from "./components/Loading";
 
 export default function Home() {
-  return (
+
+  const { data, isLoading, isError } = useUser();
+  
+  if(isLoading) return <Loading />
+  if(isError) return <Text>Error fetching user</Text>
+  console.log(data)
+  if(!data) return (
     <AppShell
       padding={"md"}
       header={{ height: 60 }}
@@ -251,4 +258,9 @@ export default function Home() {
       </AppShell.Main>
     </AppShell>
   );
+  else {
+    return (
+      <Text>Hello friend!</Text>
+    )
+  }
 }

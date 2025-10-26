@@ -1,9 +1,11 @@
+'use client';
+
 import { createClient } from "../supabase/client";
 export default async function auth() {
     const supabase = createClient();
 
     const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'slack_oidc'
+        provider: 'slack_oidc',
     })
 
     if(error) {

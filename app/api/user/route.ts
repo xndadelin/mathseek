@@ -6,7 +6,8 @@ export async function GET() {
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error} = await supabase.auth.getUser();
+    
     if(!user) {
         return NextResponse.json({
             user: null
