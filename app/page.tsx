@@ -11,7 +11,7 @@ export default function Home() {
   
   if(isLoading) return <Loading />
   if(isError) return <Text>Error fetching user</Text>
-  console.log(data)
+
   if(!data) return (
     <AppShell
       padding={"md"}

@@ -1,5 +1,3 @@
-'use client';
-
 import { createClient } from "../supabase/client";
 export default async function auth() {
     const supabase = createClient();
