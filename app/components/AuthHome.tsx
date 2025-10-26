@@ -4,7 +4,7 @@ import 'mathlive';
 import { useState } from 'react';
 import Editor from './Editor';
 import { useDisclosure } from '@mantine/hooks';
-import { AppShell, Burger, Group, NavLink, ScrollArea, Text } from '@mantine/core';
+import { AppShell, Burger, Button, Container, Group, NavLink, ScrollArea, Text, Title } from '@mantine/core';
 
 
 export default function AuthHome() {
@@ -43,8 +43,18 @@ export default function AuthHome() {
                     User related stuff
                 </AppShell.Section>
             </AppShell.Navbar>
-            <AppShell.Main>
-                <Editor value={value} setValue={setValue} />
+            <AppShell.Main mt="lg" >
+                <Container>
+                    <Group justify='space-between'>
+                        <Title order={3} ml="lg">
+                            Write your equation below:
+                        </Title>
+                        <Button variant='light' color='cyan' size="sm" mr="lg">
+                            Solve!
+                        </Button>
+                    </Group>
+                    <Editor value={value} setValue={setValue} />
+                </Container>
             </AppShell.Main>
         </AppShell>
 

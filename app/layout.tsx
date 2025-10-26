@@ -15,9 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body style={{
-        backgroundColor: 'var(--mantine-color-dark-9)'
-      }}>
+      <body>
           <Providers>
             {children}
           </Providers>

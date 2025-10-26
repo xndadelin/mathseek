@@ -1,0 +1,33 @@
+{
+    "problem_text": "echo of the input latex",
+    "assumptions": "latex text stating any domain/variable/constraint assumptions.",
+    "steps": [
+        {
+            "step": "short and concise latex description of the action/rule used.",
+            "expression": "resulting latex expression after applying the action/rule.",
+            "justification": "optional brief latex note naming the theorem/property/identity/rule used. e.g. (u-substitution)"
+        }
+    ],
+    "solution_set": ["each solution in latex format"],
+    "final_answer": "one latex sentence concluding the result",
+    "verification": {
+        "method": "latex description of how you checked",
+        "checks": [
+            {
+                "candidate": "latex for a candidate solution",
+                "residual_or_truth": "latex showing substitution or inequality truth",
+                "valid": "true/false BOOLEAN"
+            }
+        ],
+        "extraneous_solutions": ["list any discarded solutions in latex"]
+    },
+    "formats": {
+        "exact": "exact latex form (keep radicals/fractions, rationalize denominators)",
+        "approx_decimal": {
+            "value": "optional decimal approximation in latex",
+            "precision": "number of decimal places"
+        },
+        "interval_notation": "if inequality/domain, interval notation in latex"
+    },
+    "notes": "optional latex remarks about special cases/branches/considerations"
+}
