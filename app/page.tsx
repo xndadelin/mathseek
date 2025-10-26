@@ -4,6 +4,7 @@ import { Icon123, IconArrowDownRhombusFilled, IconBrain, IconFreeRights, IconMat
 import auth from "./utils/auth/auth";
 import useUser from "./utils/queries/useUser";
 import Loading from "./components/Loading";
+import AuthHome from "./components/AuthHome";
 
 export default function Home() {
 
@@ -260,7 +261,7 @@ export default function Home() {
   );
   else {
     return (
-      <Text>Hello friend!</Text>
+      <AuthHome />
     )
   }
 }
