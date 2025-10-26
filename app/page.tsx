@@ -2,6 +2,7 @@
 import { Anchor, AppShell, Badge, Box, Button, Card, Container, Divider, Group, Paper, SimpleGrid, Stack, Text, TextInput, ThemeIcon, Title, Image } from "@mantine/core";
 import { Icon123, IconArrowDownCircle, IconArrowDownRhombusFilled, IconBrain, IconFreeRights, IconMath, IconQuestionMark, IconSettings } from "@tabler/icons-react";
 import Link from "next/link";
+import auth from "./utils/auth/auth";
 
 export default function Home() {
   return (
@@ -36,7 +37,7 @@ export default function Home() {
                 }}>
                   Features
                 </Anchor>
-                <Button variant="light" size="sm" color="cyan">
+                <Button onClick={() => auth()} variant="light" size="sm" color="cyan">
                   Start
                 </Button>
               </Group>
@@ -66,7 +67,7 @@ export default function Home() {
                         display: 'flex',
                         justifyContent: 'center',
                       }}>
-                        <Button size="lg" color="cyan" fw={600}>
+                        <Button onClick={() => auth()} size="lg" color="cyan" fw={600}>
                           Get started
                         </Button>
                         <Button size="lg" bg="teal" variant="default" fw={600}>
@@ -240,11 +241,9 @@ export default function Home() {
                   beta, so if you have any feedback, please let us know! We are
                   always looking for ways to improve our platform and make it better
                   for you.
-                  <Link color="dark" href="/auth">
-                    <Button color="dark" mt={20}>
-                      Sign up now, it&apos;s free!
+                    <Button color="dark" mt={20} onClick={() => auth()}>
+                      Start now, it&apos;s free!
                     </Button>
-                  </Link>
                 </Text>
               </Container>
               <div style={{height: '200px'}}></div>
