@@ -4,12 +4,28 @@ import 'mathlive';
 import { useState } from 'react';
 import Editor from './Editor';
 import { useDisclosure } from '@mantine/hooks';
-import { AppShell, Burger, Button, Container, Group, NavLink, ScrollArea, Text, Title } from '@mantine/core';
+import { AppShell, Burger, Button, Container, Group, NavLink, ScrollArea, Title } from '@mantine/core';
 
 
 export default function AuthHome() {
     const [value, setValue] = useState('');
     const [opened, { toggle }] = useDisclosure();
+    const [solve, setSolve] = useState(null);
+
+    const handleSolve = async() => {
+        const response = await fetch('/api/solve', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                equation: value
+            })
+        })
+        const data = await response.json();
+        setSolve(data.result)
+    }
+
 
     return (
         <AppShell
@@ -19,13 +35,13 @@ export default function AuthHome() {
             }}}
             padding={"md"}
         >
-            <AppShell.Header>
+            <AppShell.Header bg={"var(--mantine-color-dark-8)"} > 
                 <Group h="100%" px="md">
                     <Burger opened={opened} onClick={toggle} size="sm" hiddenFrom='sm' />
                     mathseek
                 </Group>
             </AppShell.Header>
-            <AppShell.Navbar>
+            <AppShell.Navbar bg={"var(--mantine-color-dark-8)"}>
                 <AppShell.Section p="md">
                     Past problems
                 </AppShell.Section>
@@ -49,7 +65,7 @@ export default function AuthHome() {
                         <Title order={3} ml="lg">
                             Write your equation below:
                         </Title>
-                        <Button variant='light' color='cyan' size="sm" mr="lg">
+                        <Button onClick={handleSolve} variant='light' color='cyan' size="sm" mr="lg">
                             Solve!
                         </Button>
                     </Group>

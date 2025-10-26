@@ -99,9 +99,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
             result: completion
         })
-
-
-
+        
     } catch (error) {
         return NextResponse.json({
             error: (error as Error).message || 'An unknown error occurred.'
