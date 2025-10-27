@@ -166,7 +166,11 @@ export default function AuthHome() {
     }
 
     const parsed: typeSolveJSON | null = useMemo(() => normalizeResult(solveRaw), [solveRaw]);
-    console.log(parsed)
+    const hasVerification =
+    !!(parsed?.verification?.method ||
+        (parsed?.verification?.checks?.length ?? 0) > 0 ||
+        (parsed?.verification?.extraneous_solutions?.length ?? 0) > 0);
+
 
     return (
         <AppShell
@@ -308,7 +312,11 @@ export default function AuthHome() {
                                         {parsed.formats.exact && (
                                             <>
                                                 <Text fw={600}>Exact</Text>
-                                                <LatexInline tex={parsed.formats.exact} />
+                                                <Text size="sm" style={{
+                                                        whiteSpace: 'pre-wrap'
+                                                    }}>
+                                                        {renderTextWithLatex(parsed.formats.exact)}
+                                                    </Text>
                                             </>
                                         )}
                                         {parsed.formats.approx_decimal?.value && (
@@ -316,7 +324,11 @@ export default function AuthHome() {
                                                 <Text fw={600} mt="sm">
                                                     Approx.
                                                 </Text>
-                                                <LatexInline tex={parsed.formats.approx_decimal.value} />
+                                                 <Text size="sm" style={{
+                                                        whiteSpace: 'pre-wrap'
+                                                    }}>
+                                                        {renderTextWithLatex(parsed.formats.approx_decimal.value)}
+                                                    </Text>
                                                 <Text size="xs" c="dimmed">
                                                     (Precision: {parsed.formats.approx_decimal.precision} decimal places)
                                                 </Text>
@@ -333,9 +345,7 @@ export default function AuthHome() {
                                     </Card>
                                 )}
 
-                                {(parsed.verification?.method) ||
-                                    (parsed.verification?.checks && parsed.verification.checks.length > 0) ||
-                                    (parsed.verification?.extraneous_solutions && parsed.verification.extraneous_solutions.length > 0) && (
+                                {hasVerification && (
                                         <Card withBorder>
                                             <Title order={5} mb="xs">
                                                 Verification
@@ -345,7 +355,11 @@ export default function AuthHome() {
                                                     <Text c="dimmed" size="sm">
                                                         Method
                                                     </Text>
-                                                    <LatexInline tex={parsed.verification.method} />
+                                                    <Text size="sm" style={{
+                                                        whiteSpace: 'pre-wrap'
+                                                    }}>
+                                                        {renderTextWithLatex(parsed.verification.method)}
+                                                    </Text>
                                                 </>
                                             )}
                                             {parsed.verification?.checks && parsed.verification.checks.length > 0 && (
@@ -359,8 +373,12 @@ export default function AuthHome() {
                                                                 <Text size="sm">Candidate: </Text>
                                                                 <LatexInline tex={check.candidate} />
                                                                 <Text size="sm" mt={6}>Residual/Truth:</Text> 
-                                                                <LatexInline tex={check.residual_or_truth} />
-                                                                <Badge mt="sm" c={check.valid ? 'teal' : 'red'}>
+                                                                <Text size="sm" style={{
+                                                                    whiteSpace: 'pre-wrap'
+                                                                }}>
+                                                                        {renderTextWithLatex(check.residual_or_truth)}
+                                                                </Text>
+                                                                <Badge bg="dark" mt="sm" c={check.valid ? 'teal' : 'red'}>
                                                                     {check.valid ? 'Valid' : 'Invalid' }
                                                                 </Badge>
                                                             </Card>
