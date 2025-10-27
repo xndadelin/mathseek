@@ -48,12 +48,12 @@ export async function POST(request: NextRequest) {
 
             Provide the final answer in a JSON object with the following structure:
             {
-                "problem_text": "sanitized echo of the input, depending on what was provided, if the input is only text (such as 'how many primes are under 100?', then just repeat that text here, but not in latex form), otherwise the latex expression.",
+                "problem_text": "latex echo of the input, depending on what was provided, if the input is only text (such as 'how many primes are under 100?', then just repeat that text here, but not in latex form), otherwise the latex expression.",
                 "assumptions": "text + latex stating any domain/variable/constraint assumptions.",
                 "steps": [
                     {
                         "step": "short and concise latex description of the action/rule used.",
-                        "expression": "show the resulting latex expression after applying each action or rule. write all sub-steps clearly and sequentially. do not jump directly to the final result of the step. break complex transformations into smaller, simpler sub-steps, and show each intermediate expression explicitly
+                        "expression": "show the resulting latex expression after applying each action or rule. write all sub-steps clearly and sequentially. do not jump directly to the final result of the step. break complex transformations into smaller, simpler sub-steps, and show each intermediate expression explicitly. DELIMIT THIS WITH $...$ or $$...$$ AS APPROPRIATE.",
                         "justification": "optional brief latex note naming the theorem/property/identity/rule used. e.g. (u-substitution)"
                     }
                 ],
