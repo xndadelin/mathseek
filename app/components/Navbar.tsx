@@ -17,6 +17,46 @@ function sanitizeMathInput(s: string): string {
     .trim();
 }
 
+type StepItem = {
+    step: string;
+    expression: string;
+    justification: string;
+}
+
+type CheckItem = {
+    candidate: string;
+    residual_or_truth: string;
+    valid: boolean;
+}
+
+type Verification = {
+    method?: string;
+    checks?: CheckItem[];
+    extraneous_solutions?: string[]
+}
+
+type Formats = {
+    exact?: string;
+    approx_decimal?: {
+            value: string;
+            precision: number | string;
+        };
+    interval_notation?: string;
+}
+
+type typeSolveJSON = {
+    problem_latex?: string;
+    problem_text?: string;
+    assumptions?: string;
+    steps?: StepItem[]
+    solution_set?: string[];
+    final_answer?: string;
+    verification?: Verification;
+    formats?: Formats;
+    notes?: string;
+    error?: string;
+    query_id?: string;
+}
 
 type Query = {
     id?: string | null;
@@ -27,7 +67,7 @@ type Query = {
 interface NavbarProps {
   setCurrentQueryId: Dispatch<SetStateAction<string | null>>;
   currentQueryId: string | null;
-  setSolveRaw: Dispatch<SetStateAction<string | null>>;
+  setSolveRaw: Dispatch<SetStateAction<string | typeSolveJSON |  null>>;
 }
 
 
