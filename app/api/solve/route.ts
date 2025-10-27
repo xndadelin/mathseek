@@ -48,8 +48,8 @@ export async function POST(request: NextRequest) {
 
             Provide the final answer in a JSON object with the following structure:
             {
-                "problem_text": "sanitized echo of the input latex",
-                "assumptions": "latex text stating any domain/variable/constraint assumptions.",
+                "problem_text": "sanitized echo of the input latex or text, depending on what was provided",
+                "assumptions": "text + latex stating any domain/variable/constraint assumptions.",
                 "steps": [
                     {
                         "step": "short and concise latex description of the action/rule used.",

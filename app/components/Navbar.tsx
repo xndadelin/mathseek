@@ -52,7 +52,7 @@ export default function Navbar({ setCurrentQueryId, currentQueryId, setSolveRaw 
          {data?.map((query:Query) => (
              <NavLink
                 key={query.id}
-                label={<LatexInline tex={sanitizeMathInput(query.equation) || ''} />}
+                label={<LatexInline tex={sanitizeMathInput(query.equation as string) || ''} />}
                 style={{
                   lineClamp: 1
                 }}
