@@ -37,10 +37,8 @@ export default function Editor({ value, setValue }: EditorProps) {
         style={{
           fontSize: "1.5rem",
           width: "100%",
-          background: "#1a1b1e",
-          color: "white",
+          background: "#1f1f1f",
           borderRadius: 8,
-          padding: "0.5rem",
         } as React.CSSProperties}
       >
         {value}

@@ -1,9 +1,11 @@
-import { AppShell, Group, NavLink, ScrollArea, Text, ThemeIcon} from "@mantine/core";
-import { IconMath } from "@tabler/icons-react";;
+import { AppShell, Avatar, Group, NavLink, ScrollArea, Text, ThemeIcon, UnstyledButton} from "@mantine/core";
+import { IconLogout, IconMath } from "@tabler/icons-react";;
 import useQueries from "../utils/queries/useQueries";
 import Loading from "./Loading";
 import { LatexInline } from "./AuthHome";
 import type { Dispatch, SetStateAction } from "react";
+import useUser from "../utils/queries/useUser";
+import { createClient } from "../utils/supabase/client";
 
 function sanitizeMathInput(s: string): string {
   return s
@@ -73,7 +75,8 @@ interface NavbarProps {
 
 export default function Navbar({ setCurrentQueryId, currentQueryId, setSolveRaw }: NavbarProps)  {
   const { data, isError, isLoading } = useQueries();
-  if(isLoading) return <Loading />
+  const { data: user, isLoading: isUserLoading } = useUser();
+  if(isLoading || isUserLoading) return <Loading />
 
   return (
     <AppShell.Navbar bg={"var(--mantine-color-dark-8)"}>
@@ -81,6 +84,7 @@ export default function Navbar({ setCurrentQueryId, currentQueryId, setSolveRaw 
         <Group justify="space-between">
             <ThemeIcon
                 variant="light"
+                color="cyan"
             >
                 <IconMath />
             </ThemeIcon>
@@ -106,7 +110,36 @@ export default function Navbar({ setCurrentQueryId, currentQueryId, setSolveRaw 
             <Text px={10} c="dimmed">No recent queries.</Text>
          )}
       </AppShell.Section> 
-      <AppShell.Section p="md">User related stuff</AppShell.Section>
+      <AppShell.Section p="md">
+         <UnstyledButton w={"100%"}>
+            <Group>
+              <Avatar radius={"xl"} src={user?.user_metadata?.avatar_url} />
+
+              <div style={{ flex: 1 }}>
+                <Text size="sm" fw={500}>
+                  {user?.user_metadata?.full_name}
+                </Text>
+
+                <Text c="dimmed" size="xs">
+                  {user?.user_metadata?.email}
+                </Text>
+              </div>
+
+              <ThemeIcon
+                variant="transparent"
+                color="dark"
+                onClick={async() => {
+                  const supabase = createClient();
+                  await supabase.auth.signOut();
+                  window.location.href = '/'
+                }}
+              >
+                <IconLogout size={20} />
+              </ThemeIcon>
+
+            </Group>
+         </UnstyledButton>
+      </AppShell.Section>
     </AppShell.Navbar>
   );
 }
