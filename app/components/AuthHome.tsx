@@ -7,6 +7,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { Accordion, Alert, AppShell, Badge, Burger, Button, Card, Container, Divider, Group, NavLink, ScrollArea, Stack, Text, Title } from '@mantine/core';
 import { InlineMath, BlockMath } from 'react-katex';
 import Navbar from './Navbar';
+import { useQueryClient } from '@tanstack/react-query';
 
 function cleanLatex(s?: string): string {
   if (!s) return '';
@@ -107,7 +108,7 @@ function stripDelimiters(s?: string) : string | null {
     return t === '' ? null : t;
 }
 
-function LatexInline({ tex }: { tex?: string }) {
+export function LatexInline({ tex }: { tex?: string }) {
   if (!tex) return null;
   return <InlineMath math={stripDelimiters(cleanLatex(tex)) || ''} />;
 }
@@ -141,6 +142,7 @@ export default function AuthHome() {
     const [solveRaw, setSolveRaw] = useState<string | typeSolveJSON | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
 
     const handleSolve = async() => {
         try {
@@ -158,7 +160,9 @@ export default function AuthHome() {
             })
             const data = (await response.json()) as { result?: unknown }
             const r = typeof data?.result === 'string' || (data?.result && typeof data.result === 'object') ? (data.result as string | typeSolveJSON) : null;
+            
             setSolveRaw(r);
+            queryClient.invalidateQueries({ queryKey: ['queries']})
         } catch (error: unknown) {
             setError(getErrorMessage(error))
         } finally {

@@ -1,9 +1,18 @@
 import { AppShell, Group, NavLink, ScrollArea, Text, ThemeIcon} from "@mantine/core";
-import { IconLayoutSidebarRight, IconMath } from "@tabler/icons-react";
-import { useState } from "react";
+import { IconMath } from "@tabler/icons-react";;
+import useQueries from "../utils/queries/useQueries";
+import Loading from "./Loading";
+import { LatexInline } from "./AuthHome";
+
+type Query = {
+    id?: string | null;
+    equation?: string | null;
+    created_at?: string | null;
+}
 
 export default function Navbar() {
-  const [hidden, setHidden] = useState(false);
+  const { data, isError, isLoading } = useQueries();
+  if(isLoading) return <Loading />
 
   return (
     <AppShell.Navbar bg={"var(--mantine-color-dark-8)"}>
@@ -17,18 +26,15 @@ export default function Navbar() {
             <Text fw={700}>MathSeek</Text>
         </Group>
       </AppShell.Section>
-      <AppShell.Section my="md" grow component={ScrollArea} px="md">
-        {Array(100)
-          .fill(0)
-          .map((_, index) => (
-            <NavLink
-              href="#"
-              key={index}
-              onClick={(e) => e.preventDefault()}
-              label={`problem ${index + 1}`}
-            />
-          ))}
-      </AppShell.Section>
+      <AppShell.Section my="md" grow component={ScrollArea}>
+         <NavLink label="Recent queries" px={10} />
+         {data?.map((query:Query) => (
+             <NavLink
+                key={query.id}
+                label={<LatexInline tex={query.equation || ''} />}
+             />
+         ))}
+      </AppShell.Section> 
       <AppShell.Section p="md">User related stuff</AppShell.Section>
     </AppShell.Navbar>
   );

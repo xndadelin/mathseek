@@ -15,7 +15,7 @@ export async function GET() {
             })
         }
 
-        const { data, error: fetchError } = await supabase.from('queries').select('*').eq('user_id', user.id).order('created_at', {
+        const { data, error: fetchError } = await supabase.from('queries').select('id,equation,created_at').eq('user_id', user.id).order('created_at', {
             ascending: false
         })
 
