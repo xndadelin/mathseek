@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
 
         const dataToInsert = {
             user_id: user.id,
-            equation: JSON.parse(data).problem_text,
+            equation: equation,
             result: completion,
         }
 
