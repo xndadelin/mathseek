@@ -246,7 +246,12 @@ export default function AuthHome() {
                                     <Title order={4}>Problem</Title>
                                     <Badge c="cyan" variant='light'>Solution</Badge>
                                 </Group>
-                                <LatexBlock tex={parsed.problem_latex ?? parsed.problem_text} />
+                                <Text style={{
+                                    whiteSpace: 'pre-wrap',
+                                    textAlign: 'center'
+                                }}>
+                                    {renderTextWithLatex(parsed.problem_text || parsed.problem_latex || 'No problem provided.')}
+                                </Text>
                                 {parsed.assumptions && (
                                     <>
                                         <Text c="dimmed" size="sm">

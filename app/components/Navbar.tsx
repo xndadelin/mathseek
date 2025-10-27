@@ -49,7 +49,7 @@ export default function Navbar({ setCurrentQueryId, currentQueryId, setSolveRaw 
       </AppShell.Section>
       <AppShell.Section my="md" grow component={ScrollArea}>
          <NavLink label="Recent queries" px={10} />
-         {data?.map((query:Query) => (
+         {data.length > 0 ? data.map((query:Query) => (
              <NavLink
                 key={query.id}
                 label={<LatexInline tex={sanitizeMathInput(query.equation as string) || ''} />}
@@ -62,7 +62,9 @@ export default function Navbar({ setCurrentQueryId, currentQueryId, setSolveRaw 
                 }}
                 bg={currentQueryId === query.id ? 'var(--mantine-color-dark-6)' : undefined}
              />
-         ))}
+         )): (
+            <Text px={10} c="dimmed">No recent queries.</Text>
+         )}
       </AppShell.Section> 
       <AppShell.Section p="md">User related stuff</AppShell.Section>
     </AppShell.Navbar>

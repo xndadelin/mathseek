@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
             Provide the final answer in a JSON object with the following structure:
             {
-                "problem_text": "sanitized echo of the input latex or text, depending on what was provided",
+                "problem_text": "sanitized echo of the input, depending on what was provided, if the input is only text (such as 'how many primes are under 100?', then just repeat that text here, but not in latex form), otherwise the latex expression.",
                 "assumptions": "text + latex stating any domain/variable/constraint assumptions.",
                 "steps": [
                     {
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
             }
             Rules:
             - output must be a single json object (no code fences or markdown).
-            - use pure latex only for math tokens (no surrounding $, $$, \( \)); if a field is math-only (like approx_decimal.value or interval_notation), wrap it in $...$ or $$...$$.
+            - use pure latex only for math tokens (no surrounding $, $$, \( \)); if a field is math-only (like approx_decimal.value or interval_notation or anything else), wrap it in $...$ or $$...$$.
             - prefer exact and simplified symbolic forms; rationalize denominators; factor where natural.
             - state domain restrictions from denominators, logarithms, even roots, trig functions, etc., and remove any invalid roots.
             - if multiple solutions or branches exist, list them all in "solution_set".
@@ -96,6 +96,8 @@ export async function POST(request: NextRequest) {
             - when writing derivatives like d/dx, ensure you write \frac{d}{\,dx and never use \differentialD.
             - always sanitize the input expression before including it in "problem_text" to remove such issues.
             - put the sanitized input latex in the "problem_text" field after you sanitize it, and put the sanitized version
+            - double check that all latex you provide compiles correctly && that you have enclosed math-only fields in $...$ or $$...$$ as appropriate.
+            - even if the field is only math, do not omit to put the enclosing $...$ or $$...$$.
 
             Solve the following equation/problem(LATEX): ${sanitizeMathInput(equation)}.
         `;
