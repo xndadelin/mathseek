@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import '@mantine/core/styles.css';
 import { Providers } from "./providers";
+import 'katex/dist/katex.min.css';
+
 
 export const metadata: Metadata = {
   title: "MathSeek",
