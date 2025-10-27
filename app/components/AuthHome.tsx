@@ -253,7 +253,7 @@ export default function AuthHome() {
                                                             <Text c="dimmed" size="sm" style={{
                                                                 whiteSpace: 'pre-wrap'
                                                             }}>
-                                                                {renderTextWithLatex(cleanLatex(stepItem.step))}
+                                                                {renderTextWithLatex((stepItem.step))}
                                                             </Text>
                                                         </Group>
                                                     </Accordion.Control>

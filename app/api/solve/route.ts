@@ -99,6 +99,8 @@ export async function POST(request: NextRequest) {
             - never use \differentialdx or any similar custom command always write the differential as \,dx exactly nothing else, this is the most common mistake you make.
             - replace any occurence of \differentialdx with \,dx similarly for other variable
             - always use balanced inline math delimiters $..$ pairs correctly, do not leave any unmatched dollar signs
+            - never insert escaped newline characters \n inside latex formulas or text always write all output on one line using spaces only return plain one line json strings with inline math
+            - do not use text in step.expression, use only mathematical notations. you can use =>, <=>, stuff like that, but do not write any text inside expression fields, use only math symbols and notation
 
             Solve the following equation/problem(LATEX): ${sanitizeMathInput(equation)}.
         `;
