@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
                 "steps": [
                     {
                         "step": "short and concise latex description of the action/rule used.",
-                        "expression": "show the resulting latex expression after applying each action or rule. write all sub-steps clearly and sequentially. do not jump directly to the final result of the step. break complex transformations into smaller, simpler sub-steps, and show each intermediate expression explicitly.",
+                        "expression": "show the resulting latex expression after applying each action or rule. write all sub-steps clearly and sequentially. do not jump directly to the final result of the step. break complex transformations into smaller, simpler sub-steps, and show each intermediate expression explicitly
                         "justification": "optional brief latex note naming the theorem/property/identity/rule used. e.g. (u-substitution)"
                     }
                 ],
