@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
             Provide the final answer in a JSON object with the following structure:
             {
-                "problem_text": "echo of the input latex",
+                "problem_text": "sanitized echo of the input latex",
                 "assumptions": "latex text stating any domain/variable/constraint assumptions.",
                 "steps": [
                     {
@@ -80,24 +80,22 @@ export async function POST(request: NextRequest) {
                 },
                 "notes": "optional latex remarks about special cases/branches/considerations"
             }
-
             Rules:
-            - use pure latex for math tokens only (no surrounding $,$$ or \\( \\))
-            - prefer exact/simplified symbolic forms; rationalize denominators; factor where natural.
-            - state domain restrictions from denominators, logs, even roots, trig domain, etc. and remove any roots violating them.
-            - if multiple solutions/branches exist, list them all in "solution_set",
-            - for inequalities, provide solution in interval notation under "formats.interval_notation",
-            - for indefinite integrals, include +C; for definite integrals, specify limits clearly;
-            - if the input is an expression (not an equation), simplify or evaluate as requested by the text; clarify aim in 'assumptions',
-            - if the problem is ambiguous, ill-posed, or not math, return:
-              { "error" : "brief reason IN LATEX }
-            - output must be only the JSON object. DO NOT include any text outside the JSON structure.
-            - when generating the final answer or any explanatory text, do not enclose the entire sentence in latex delimiters ($...$) or ($$...$$); Use inline math like $x=1$ only for mathemtical expressions inside normal text. return human-readable text with math embedded inline, not a full latex block. 
-            - if one field is only math, (e.g. approx_decimal.value or interval_notation) return the latex WITH the latex delimiters $...$ or $$...$$ as appropriate.
-            - never use \differentialdx or any similar custom command always write the differential as \,dx exactly nothing else, this is the most common mistake you make.
-            - replace any occurence of \differentialdx with \,dx similarly for other variable
-
-            
+            - output must be a single json object (no code fences or markdown).
+            - use pure latex only for math tokens (no surrounding $, $$, \( \)); if a field is math-only (like approx_decimal.value or interval_notation), wrap it in $...$ or $$...$$.
+            - prefer exact and simplified symbolic forms; rationalize denominators; factor where natural.
+            - state domain restrictions from denominators, logarithms, even roots, trig functions, etc., and remove any invalid roots.
+            - if multiple solutions or branches exist, list them all in "solution_set".
+            - for inequalities, provide solution in interval notation under "formats.interval_notation".
+            - for indefinite integrals, include +C; for definite integrals, specify limits clearly.
+            - if the input is an expression (not an equation), simplify or evaluate as requested by the text; clarify the aim in "assumptions".
+            - if the problem is ambiguous, ill-posed, or not math, return { "error": "brief reason IN LATEX" }.
+            - do not enclose full sentences entirely in latex; only embed math inline (e.g., "the solution is $x=1$").
+            - never use \differentialD, \differentialdx, or any similar macro for differentials. always write the differential as \,dx (and similarly for dy, dz, etc.).
+            - replace any occurrence of those macros or unicode differential symbols (ⅆ) with the plain \,d(variable).
+            - when writing derivatives like d/dx, ensure you write \frac{d}{\,dx and never use \differentialD.
+            - always sanitize the input expression before including it in "problem_text" to remove such issues.
+            - put the sanitized input latex in the "problem_text" field after you sanitize it, and put the sanitized version
 
             Solve the following equation/problem(LATEX): ${sanitizeMathInput(equation)}.
         `;
@@ -132,7 +130,7 @@ export async function POST(request: NextRequest) {
 
         const dataToInsert = {
             user_id: user.id,
-            equation,
+            equation: JSON.parse(data).problem_text,
             result: completion,
         }
 

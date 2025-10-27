@@ -1,13 +1,14 @@
 'use client';
 
 import 'mathlive';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Editor from './Editor';
 import { useDisclosure } from '@mantine/hooks';
 import { Accordion, Alert, AppShell, Badge, Burger, Button, Card, Container, Divider, Group, NavLink, ScrollArea, Stack, Text, Title } from '@mantine/core';
 import { InlineMath, BlockMath } from 'react-katex';
 import Navbar from './Navbar';
 import { useQueryClient } from '@tanstack/react-query';
+import { createClient } from '../utils/supabase/client';
 
 function cleanLatex(s?: string): string {
   if (!s) return '';
@@ -54,6 +55,7 @@ type typeSolveJSON = {
     formats?: Formats;
     notes?: string;
     error?: string;
+    query_id?: string;
 }
 
 function stripCodeFence(s: string): string {
@@ -97,7 +99,7 @@ function getErrorMessage(e: unknown): string {
 
 function stripDelimiters(s?: string) : string | null {
     if(!s) return null;
-    let t = s.trim();
+    const t = s.trim();
     if((t.startsWith('$$') && t.endsWith('$$')) ||
        (t.startsWith('\\[') && t.endsWith('\\]'))) {
         return t.slice(2, -2).trim() || null;
@@ -118,6 +120,7 @@ function LatexBlock({ tex }: { tex?: string }) {
   if (!tex) return null;
   return <BlockMath math={stripDelimiters(cleanLatex(tex)) || ''} />;
 }
+
 
 
 function renderTextWithLatex(input: string): React.ReactNode {
@@ -152,6 +155,21 @@ export default function AuthHome() {
     const queryClient = useQueryClient();
     const [currentQueryId, setCurrentQueryId] = useState<string | null>(null);
 
+    useEffect(() => {
+        const fetch = async () => {
+            const normalized = normalizeResult(solveRaw);
+            const supabase = createClient();
+            if (currentQueryId && normalized?.query_id !== currentQueryId) { 
+                const { data } = await supabase.from('queries').select('*').eq('id', currentQueryId).single();
+                if(data) {
+                    console.log(data)
+                    setSolveRaw(data.result);
+                }
+            }
+        }
+        fetch();
+    }, [currentQueryId])
+
     const handleSolve = async() => {
         try {
             setSolveRaw(null)
@@ -163,7 +181,7 @@ export default function AuthHome() {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    equation: value
+                    equation: cleanLatex(value)
                 })
             })
             const data = (await response.json()) as { result?: unknown; query_id?: string }
@@ -184,7 +202,6 @@ export default function AuthHome() {
         (parsed?.verification?.checks?.length ?? 0) > 0 ||
         (parsed?.verification?.extraneous_solutions?.length ?? 0) > 0);
 
-
     return (
         <AppShell
             navbar={{ width: 300, breakpoint: 'sm', collapsed: {
@@ -204,7 +221,7 @@ export default function AuthHome() {
                     mathseek
                 </Group>
             </AppShell.Header>
-            <Navbar />
+            <Navbar setCurrentQueryId={setCurrentQueryId} setSolveRaw={setSolveRaw} currentQueryId={currentQueryId} />
             <AppShell.Main mt="lg" >
                 <Container>
                     <Group justify='space-between'>
