@@ -6,26 +6,68 @@ import Editor from './Editor';
 import { useDisclosure } from '@mantine/hooks';
 import { AppShell, Burger, Button, Container, Group, NavLink, ScrollArea, Title } from '@mantine/core';
 
+type typeSolveJSON = {
+    problem_latex?: string;
+    problem_text?: string;
+    assumptions?: string;
+    steps?: {
+        step: string;
+        expression: string;
+        justification: string;
+    }[];
+    solution_set?: string[];
+    final_answer?: string;
+    verification?: {
+        method?: string;
+        checks?: {
+            candidate: string;
+            residual_or_truth: string;
+            valid: boolean;
+        } [];
+        extraneous_solutions?: string[];
+    }
+    formats?: {
+        exact?: string;
+        approx_decimal?: {
+            value: string;
+            precision: number;
+        };
+        interval_notation?: string;
+    };
+    notes?: string;
+    error?: string;
+}
 
 export default function AuthHome() {
     const [value, setValue] = useState('');
     const [opened, { toggle }] = useDisclosure();
-    const [solve, setSolve] = useState(null);
+    const [solveRaw, setSolveRaw] = useState<unknown>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+
 
     const handleSolve = async() => {
-        const response = await fetch('/api/solve', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                equation: value
+        try {
+            setLoading(true);
+            setError(null);
+            const response = await fetch('/api/solve', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    equation: value
+                })
             })
-        })
-        const data = await response.json();
-        setSolve(data.result)
+            const data = await response.json();
+            setSolveRaw(data?.result ?? null)
+        } catch (error) {
+            setError((error as Error).message ?? 'An unknown error occurred.')
+        } finally {
+            setLoading(false);
+        }
     }
-
 
     return (
         <AppShell
