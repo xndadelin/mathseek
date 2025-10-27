@@ -65,7 +65,11 @@ export async function POST(request: NextRequest) {
             - if the problem is ambiguous, ill-posed, or not math, return:
               { "error" : "brief reason IN LATEX }
             - output must be only the JSON object. DO NOT include any text outside the JSON structure.
-            
+            - when generating the final answer or any explanatory text, do not enclose the entire sentence in latex delimiters ($...$) or ($$...$$); Use inline math like $x=1$ only for mathemtical expressions inside normal text. return human-readable text with math embedded inline, not a full latex block
+            - only use line breaks (\n) where absolutely required in multi-line math, and even then, prefer inline LaTeX using spaces.
+            - when returning json fields like problem_text steps expressions, final_answer or note, do not include escaped newline \n, use single spaces instead of line breaks, do not escape latex backslashes, use one backslash not 2, do not insert custom commands like \differentialdx, use standard latex notation for diffirenetials (\,dx), do not wrap whole sentences in latex delimiters, use inline math only for math parts, return plain text with inline math, all strings must be valid, one line json strings, no markdown code fences or surrounding quotations.
+            - use one backslash not two and avoid \, before differentials write du dx dt instead
+
             Solve the following equation/problem(LATEX): ${equation}.
         `;
 

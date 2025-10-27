@@ -4,7 +4,7 @@ import 'mathlive';
 import { useMemo, useState } from 'react';
 import Editor from './Editor';
 import { useDisclosure } from '@mantine/hooks';
-import { Alert, AppShell, Badge, Burger, Button, Card, Container, Divider, Group, NavLink, ScrollArea, Stack, Text, Title } from '@mantine/core';
+import { Accordion, Alert, AppShell, Badge, Burger, Button, Card, Container, Divider, Group, NavLink, ScrollArea, Stack, Text, Title } from '@mantine/core';
 import { InlineMath, BlockMath } from 'react-katex';
 
 type StepItem = {
@@ -47,13 +47,24 @@ type typeSolveJSON = {
     error?: string;
 }
 
-function safeParse<T>(s: string): T | null {
-    try {
-        return JSON.parse(s) as T;
-    } catch {
-        return null;
-    }
+function stripCodeFence(s: string): string {
+  const trimmed = s.trim();
+  const match = trimmed.match(/^```(?:\w+)?\n([\s\S]*?)\n```$/);
+  return match ? match[1] : trimmed;
 }
+
+function safeParse<T>(s: string): T | null {
+  try {
+    return JSON.parse(s) as T;
+  } catch {
+    try {
+      return JSON.parse(stripCodeFence(s)) as T;
+    } catch {
+      return null;
+    }
+  }
+}
+
 
 function normalizeResult(input: string | typeSolveJSON | null) : typeSolveJSON | null {
     if(!input) return null;
@@ -100,16 +111,21 @@ function LatexBlock({ tex }: { tex?: string }) {
 } 
 
 function renderTextWithLatex(input: string): React.ReactNode {
-  const parts = input.split(/(\\\(.+?\\\)|\$.+?\$)/g);
-  if(parts.length === 0) return null;
-  return parts.map((part, i) => {
-    if (part.match(/(\\\(.+?\\\)|\$.+?\$)/)) {
-      const tex = part.replace(/^\$|\\\(|\)$|\\\)$/g, '');
+  if (!input) return null;
+
+  const SPLIT = /(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\$[\s\S]*?\$|\\\([\s\S]*?\\\))/g;
+  const IS_MATH = /^(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\$[\s\S]*?\$|\\\([\s\S]*?\\\))$/;
+
+  return input.split(SPLIT).map((part, i) => {
+    if (!part) return null;
+    if (IS_MATH.test(part)) {
+      const tex = stripDelimiters(part) || '';
       return <InlineMath key={i} math={tex} />;
     }
     return <span key={i}>{part}</span>;
   });
 }
+
 
 export default function AuthHome() {
     const [value, setValue] = useState('');
@@ -141,7 +157,8 @@ export default function AuthHome() {
         }
     }
 
-    const parsed: typeSolveJSON | null = useMemo(() => normalizeResult(solveRaw), [solveRaw])
+    const parsed: typeSolveJSON | null = useMemo(() => normalizeResult(solveRaw), [solveRaw]);
+    console.log(parsed)
 
     return (
         <AppShell
@@ -192,7 +209,7 @@ export default function AuthHome() {
                             <Card withBorder>
                                 <Group justify='space-between' mb="xs">
                                     <Title order={4}>Problem</Title>
-                                    <Badge variant='light'>Solution</Badge>
+                                    <Badge c="cyan" variant='light'>Solution</Badge>
                                 </Group>
                                 <LatexBlock tex={parsed.problem_latex ?? parsed.problem_text} />
                                 {parsed.assumptions && (
@@ -200,7 +217,11 @@ export default function AuthHome() {
                                         <Text c="dimmed" size="sm">
                                             Assumptions
                                         </Text>
-                                        <LatexInline tex={parsed.assumptions} />
+                                        <Text size="sm" style={{
+                                            whiteSpace: 'pre-wrap'
+                                        }}>
+                                            {renderTextWithLatex(parsed.assumptions)}
+                                        </Text>
                                     </>
                                 )}
                             </Card>
@@ -210,29 +231,40 @@ export default function AuthHome() {
                                         <Title order={4} mb="sm">
                                             Steps
                                         </Title>
-                                        <Stack gap="sm">
-                                            {parsed.steps.map((step, index) => (
-                                                <Card key={`step-${index}`} withBorder padding={"sm"} radius={"md"}>
-                                                    <Text fw={600}>
-                                                        Step {index + 1}:
-                                                        <span style={{ fontWeight: 500 }}>
-                                                            {renderTextWithLatex(step.step)}
-                                                        </span>
-                                                    </Text>
-                                                    <LatexBlock tex={step.expression} />
-                                                    {step.justification && (
-                                                        <>
-                                                            <Text c="dimmed" size="sm">
-                                                                Justification
+                                        <Accordion variant='separated' multiple>
+                                            {parsed.steps.map((stepItem, index) => (
+                                                <Accordion.Item
+                                                    key={`step-${index}`}
+                                                    value={`step-${index}`}
+                                                >
+                                                    <Accordion.Control>
+                                                        <Group gap="xs">
+                                                            <Text fw={600}>
+                                                                Step {index + 1}
                                                             </Text>
-                                                            <Text size="sm">
-                                                                {renderTextWithLatex(step.justification)}
+                                                            <Text c="dimmed" size="sm" style={{
+                                                                whiteSpace: 'pre-wrap'
+                                                            }}>
+                                                                {renderTextWithLatex(stepItem.step)}
                                                             </Text>
-                                                        </>
-                                                    )}
-                                                </Card>
+                                                        </Group>
+                                                    </Accordion.Control>
+                                                    <Accordion.Panel>
+                                                        <LatexBlock tex={stepItem.expression} />
+                                                        {stepItem.justification && (
+                                                            <>
+                                                                <Text c="dimmed" size="sm" mt="sm">
+                                                                    Justification
+                                                                </Text>
+                                                                <Text size="sm">
+                                                                    {renderTextWithLatex(stepItem.justification)}
+                                                                </Text>
+                                                            </>
+                                                        )}
+                                                    </Accordion.Panel>
+                                                </Accordion.Item>
                                             ))}
-                                        </Stack>
+                                        </Accordion>
                                     </Card>
                                 )}
                                 {(parsed.final_answer || (parsed.solution_set && parsed.solution_set.length > 0)) && (
@@ -240,7 +272,11 @@ export default function AuthHome() {
                                         <Title order={3} mb="sm">
                                             Final answer
                                         </Title>
-                                        <LatexBlock tex={parsed.final_answer} />
+                                        <Text>
+                                            {renderTextWithLatex(
+                                                parsed.final_answer || 'No final answer provided.'
+                                            )}
+                                        </Text>
                                         {parsed.solution_set && parsed.solution_set.length > 0 && (
                                             <>
                                                 <Text c="dimmed" size="sm" mt="sm">
