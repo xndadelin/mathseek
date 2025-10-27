@@ -235,7 +235,7 @@ export default function Home() {
                   gap: '2rem',
                   marginBottom: '80',
                   justifyContent: 'center',
-                  backgroundColor: 'var(--mantine-color-teal-9)',
+                  backgroundColor: 'var(--mantine-color-cyan-9)',
                   color: 'var(--mantine-color-white-0)',
                   borderRadius: '16px',
                   padding: 40
