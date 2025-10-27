@@ -7,6 +7,12 @@ import { useDisclosure } from '@mantine/hooks';
 import { Accordion, Alert, AppShell, Badge, Burger, Button, Card, Container, Divider, Group, NavLink, ScrollArea, Stack, Text, Title } from '@mantine/core';
 import { InlineMath, BlockMath } from 'react-katex';
 
+function cleanLatex(s?: string): string {
+  if (!s) return '';
+  return s.replace(/\\n/g, ' ').replace(/\\\\/g, '\\').replace(/\s+/g, ' ').trim();
+}
+
+
 type StepItem = {
     step: string;
     expression: string;
@@ -101,14 +107,15 @@ function stripDelimiters(s?: string) : string | null {
 }
 
 function LatexInline({ tex }: { tex?: string }) {
-    if(!tex) return null;
-    return <InlineMath math={stripDelimiters(tex) || ''} />
+  if (!tex) return null;
+  return <InlineMath math={stripDelimiters(cleanLatex(tex)) || ''} />;
 }
 
 function LatexBlock({ tex }: { tex?: string }) {
-    if(!tex) return null;
-    return <BlockMath math={stripDelimiters(tex) || ''} />
-} 
+  if (!tex) return null;
+  return <BlockMath math={stripDelimiters(cleanLatex(tex)) || ''} />;
+}
+
 
 function renderTextWithLatex(input: string): React.ReactNode {
   if (!input) return null;
@@ -136,6 +143,7 @@ export default function AuthHome() {
 
     const handleSolve = async() => {
         try {
+            setSolveRaw(null)
             setLoading(true);
             setError(null);
             const response = await fetch('/api/solve', {
@@ -245,7 +253,7 @@ export default function AuthHome() {
                                                             <Text c="dimmed" size="sm" style={{
                                                                 whiteSpace: 'pre-wrap'
                                                             }}>
-                                                                {renderTextWithLatex(stepItem.step)}
+                                                                {renderTextWithLatex(cleanLatex(stepItem.step))}
                                                             </Text>
                                                         </Group>
                                                     </Accordion.Control>

@@ -1,4 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/app/utils/supabase/server";
+import { cookies } from "next/headers";
+
+function sanitizeMathInput(s: string): string {
+  return s
+    .replace(/```[\s\S]*?```/g, (m) => m.replace(/```/g, '')) 
+    .replace(/\\n/g, ' ')
+    .replace(/\\\\/g, '\\')
+    .replace(/\\differentialD\s*([a-zA-Z])/g, '\\,d$1') 
+    .replace(/\\differentiald\s*([a-zA-Z])/gi, '\\,d$1')
+    .replace(/\\,\s*d([a-zA-Z])/g, ' \\,d$1')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 
 export async function POST(request: NextRequest) {
     try {
@@ -11,6 +26,18 @@ export async function POST(request: NextRequest) {
 
         if(!equation || typeof equation !== 'string') {
             throw new Error('Invalid equation provided.')
+        }
+
+        const supabase = await createClient();
+
+        const { data: {
+            user
+        } } = await supabase.auth.getUser();
+
+        if(!user) {
+            return NextResponse.json({
+                error: 'you are not authenticated'
+            })
         }
 
         const prompt = `
@@ -67,10 +94,13 @@ export async function POST(request: NextRequest) {
             - output must be only the JSON object. DO NOT include any text outside the JSON structure.
             - when generating the final answer or any explanatory text, do not enclose the entire sentence in latex delimiters ($...$) or ($$...$$); Use inline math like $x=1$ only for mathemtical expressions inside normal text. return human-readable text with math embedded inline, not a full latex block
             - only use line breaks (\n) where absolutely required in multi-line math, and even then, prefer inline LaTeX using spaces.
-            - when returning json fields like problem_text steps expressions, final_answer or note, do not include escaped newline \n, use single spaces instead of line breaks, do not escape latex backslashes, use one backslash not 2, do not insert custom commands like \differentialdx, use standard latex notation for diffirenetials (\,dx), do not wrap whole sentences in latex delimiters, use inline math only for math parts, return plain text with inline math, all strings must be valid, one line json strings, no markdown code fences or surrounding quotations.
+            - when returning json fields like problem_text steps expressions, final_answer or note, do not include escaped newline \n, use single spaces instead of line breaks, do not escape latex backslashes, use one backslash not two, do not wrap whole sentences in latex delimiters, use inline math only for math parts, return plain text with inline math, all strings must be valid, one line json strings, no markdown code fences or surrounding quotations.
             - use one backslash not two and avoid \, before differentials write du dx dt instead
+            - never use \differentialdx or any similar custom command always write the differential as \,dx exactly nothing else, this is the most common mistake you make.
+            - replace any occurence of \differentialdx with \,dx similarly for other variable
+            - always use balanced inline math delimiters $..$ pairs correctly, do not leave any unmatched dollar signs
 
-            Solve the following equation/problem(LATEX): ${equation}.
+            Solve the following equation/problem(LATEX): ${sanitizeMathInput(equation)}.
         `;
 
         const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
@@ -100,8 +130,19 @@ export async function POST(request: NextRequest) {
         const data = await response.json();
         const completion = data.choices[0].message.content;
 
+
+        const dataToInsert = {
+            user_id: user.id,
+            equation,
+            result: completion,
+        }
+
+        const { data: data2 } = await supabase.from('queries').insert(dataToInsert).select('id').single();
+        const id = data2?.id;
+
         return NextResponse.json({
-            result: completion
+            result: completion,
+            query_id: id
         })
         
     } catch (error) {
