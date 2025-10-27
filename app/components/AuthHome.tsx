@@ -6,6 +6,7 @@ import Editor from './Editor';
 import { useDisclosure } from '@mantine/hooks';
 import { Accordion, Alert, AppShell, Badge, Burger, Button, Card, Container, Divider, Group, NavLink, ScrollArea, Stack, Text, Title } from '@mantine/core';
 import { InlineMath, BlockMath } from 'react-katex';
+import Navbar from './Navbar';
 
 function cleanLatex(s?: string): string {
   if (!s) return '';
@@ -178,25 +179,20 @@ export default function AuthHome() {
                 mobile: !opened
             }}}
             padding={"md"}
+            header={{
+                height: {
+                    base: 60, 
+                    sm: 0
+                }
+            }}
         >
-            <AppShell.Navbar bg={"var(--mantine-color-dark-8)"}>
-                <AppShell.Section p="md">
-                    Past problems
-                </AppShell.Section>
-                <AppShell.Section my="md" grow component={ScrollArea} px="md">
-                    {Array(100).fill(0).map((_, index) => (
-                        <NavLink
-                            href="#"
-                            key={index}
-                            onClick={(e) => e.preventDefault()}
-                            label={`problem ${index + 1}`}
-                        />
-                    ))}
-                </AppShell.Section>
-                <AppShell.Section p="md">
-                    User related stuff
-                </AppShell.Section>
-            </AppShell.Navbar>
+            <AppShell.Header hiddenFrom='sm'>
+                <Group h="100%" px="md">
+                    <Burger opened={opened} onClick={toggle} size="sm" hiddenFrom='sm' />
+                    mathseek
+                </Group>
+            </AppShell.Header>
+            <Navbar />
             <AppShell.Main mt="lg" >
                 <Container>
                     <Group justify='space-between'>
@@ -208,8 +204,6 @@ export default function AuthHome() {
                         </Button>
                     </Group>
                     <Editor value={value} setValue={setValue} />
-                    <Divider my="lg" />
-
                     {error && (
                         <Alert color="red" title="Error" mb="md">
                             {error}
@@ -262,7 +256,7 @@ export default function AuthHome() {
                                                         </Group>
                                                     </Accordion.Control>
                                                     <Accordion.Panel>
-                                                        <LatexBlock tex={stepItem.expression} />
+                                                        {renderTextWithLatex(stepItem.expression)}
                                                         {stepItem.justification && (
                                                             <>
                                                                 <Text c="dimmed" size="sm" mt="sm">
