@@ -5,14 +5,21 @@ import { useState } from "react";
 import type { MathfieldElement } from "mathlive";
 import { Container } from "@mantine/core";
 
-declare module "react/jsx-runtime" {
-  export interface JSXIntrinsicElements {
-    "math-field": React.DetailedHTMLProps<
-      React.HTMLAttributes<MathfieldElement>,
-      MathfieldElement
-    >;
+
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements {
+      'math-field': React.DetailedHTMLProps<
+        React.HTMLAttributes<MathfieldElement>,
+        MathfieldElement
+      > & {
+        value?: string;
+        onInput?: (event: React.FormEvent<MathfieldElement>) => void;
+      };
+    }
   }
 }
+
 
 interface EditorProps {
   value: string;
@@ -23,7 +30,7 @@ export default function Editor({ value, setValue }: EditorProps) {
   return (
     <Container p="16">
       <math-field
-        onInput={(evt) => {
+        onInput={(evt: React.FormEvent<MathfieldElement>) => {
           const el = evt.target as MathfieldElement;
           setValue(el.value);
         }}
@@ -34,7 +41,7 @@ export default function Editor({ value, setValue }: EditorProps) {
           color: "white",
           borderRadius: 8,
           padding: "0.5rem",
-        }}
+        } as React.CSSProperties}
       >
         {value}
       </math-field>
