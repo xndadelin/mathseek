@@ -11,7 +11,8 @@ import { useQueryClient } from '@tanstack/react-query';
 
 function cleanLatex(s?: string): string {
   if (!s) return '';
-  return s.replace(/\\n/g, ' ').replace(/\\\\/g, '\\').replace(/\s+/g, ' ').trim();
+  if (typeof s !== 'string') return '';
+  return s.replace(/\\n/g, ' ')?.replace(/\\\\/g, '\\')?.replace(/\s+/g, ' ')?.trim();
 }
 
 
@@ -37,7 +38,7 @@ type Formats = {
     exact?: string;
     approx_decimal?: {
             value: string;
-            precision: number;
+            precision: number | string;
         };
     interval_notation?: string;
 }
@@ -121,19 +122,25 @@ function LatexBlock({ tex }: { tex?: string }) {
 
 function renderTextWithLatex(input: string): React.ReactNode {
   if (!input) return null;
+  const s = cleanLatex(input);
 
   const SPLIT = /(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\$[\s\S]*?\$|\\\([\s\S]*?\\\))/g;
   const IS_MATH = /^(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\$[\s\S]*?\$|\\\([\s\S]*?\\\))$/;
+  const LOOKS_TEX = /\\(frac|cdot|sqrt|left|right|sum|int|alpha|beta|gamma)|[\^_]/;
 
-  return input.split(SPLIT).map((part, i) => {
-    if (!part) return null;
-    if (IS_MATH.test(part)) {
-      const tex = stripDelimiters(part) || '';
-      return <InlineMath key={i} math={tex} />;
-    }
-    return <span key={i}>{part}</span>;
-  });
+  const parts = s.split(SPLIT).filter(Boolean);
+
+  if (parts.length === 1 && !IS_MATH.test(s) && LOOKS_TEX.test(s)) {
+    return <InlineMath math={stripDelimiters(s) || s} />;
+  }
+
+  return parts.map((part, i) =>
+    IS_MATH.test(part)
+      ? <InlineMath key={i} math={stripDelimiters(part) || ''} />
+      : <span key={i}>{part}</span>
+  );
 }
+
 
 
 export default function AuthHome() {
@@ -143,6 +150,7 @@ export default function AuthHome() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const queryClient = useQueryClient();
+    const [currentQueryId, setCurrentQueryId] = useState<string | null>(null);
 
     const handleSolve = async() => {
         try {
@@ -158,9 +166,9 @@ export default function AuthHome() {
                     equation: value
                 })
             })
-            const data = (await response.json()) as { result?: unknown }
+            const data = (await response.json()) as { result?: unknown; query_id?: string }
             const r = typeof data?.result === 'string' || (data?.result && typeof data.result === 'object') ? (data.result as string | typeSolveJSON) : null;
-            
+            setCurrentQueryId(data?.query_id || null)
             setSolveRaw(r);
             queryClient.invalidateQueries({ queryKey: ['queries']})
         } catch (error: unknown) {
@@ -253,14 +261,20 @@ export default function AuthHome() {
                                                                 Step {index + 1}
                                                             </Text>
                                                             <Text c="dimmed" size="sm" style={{
-                                                                whiteSpace: 'pre-wrap'
+                                                                whiteSpace: 'pre-wrap',
                                                             }}>
                                                                 {renderTextWithLatex((stepItem.step))}
                                                             </Text>
                                                         </Group>
                                                     </Accordion.Control>
-                                                    <Accordion.Panel>
-                                                        {renderTextWithLatex(stepItem.expression)}
+                                                    <Accordion.Panel >
+                                                        <Text style={{
+                                                            textAlign: 'center'
+                                                        }}
+                                                            size='lg'
+                                                        >
+                                                            {renderTextWithLatex(stepItem.expression)}
+                                                        </Text>
                                                         {stepItem.justification && (
                                                             <>
                                                                 <Text c="dimmed" size="sm" mt="sm">
@@ -294,7 +308,9 @@ export default function AuthHome() {
                                                 </Text>
                                                 <Stack gap={4}>
                                                     {parsed.solution_set.map((sol, index) => (
-                                                        <LatexInline key={`solution-${index}`} tex={sol} />
+                                                        <Text key={`solution-${index}`} size="sm">
+                                                            {renderTextWithLatex(sol)}
+                                                        </Text>
                                                      ))}
                                                 </Stack>
                                             </>
@@ -328,7 +344,7 @@ export default function AuthHome() {
                                                         {renderTextWithLatex(parsed.formats.approx_decimal.value)}
                                                     </Text>
                                                 <Text size="xs" c="dimmed">
-                                                    (Precision: {parsed.formats.approx_decimal.precision} decimal places)
+                                                    (Precision: {renderTextWithLatex(parsed.formats.approx_decimal.precision as string)} decimal places)
                                                 </Text>
                                             </>
                                         )}
@@ -337,7 +353,11 @@ export default function AuthHome() {
                                                 <Text fw={600} mt="sm">
                                                     Interval notation
                                                 </Text>
-                                                <LatexInline tex={parsed.formats.interval_notation} />
+                                                <Text size="sm" style={{
+                                                        whiteSpace: 'pre-wrap'
+                                                    }}>
+                                                        {renderTextWithLatex(parsed.formats.interval_notation)}
+                                                </Text>
                                             </>
                                         )}
                                     </Card>
@@ -369,7 +389,11 @@ export default function AuthHome() {
                                                         {parsed.verification.checks.map((check, index) => (
                                                             <Card key={`check-${index}`} padding="sm" withBorder>
                                                                 <Text size="sm">Candidate: </Text>
-                                                                <LatexInline tex={check.candidate} />
+                                                                <Text size="sm" style={{
+                                                                    whiteSpace: 'pre-wrap'
+                                                                }}>
+                                                                        {renderTextWithLatex(check.candidate)}
+                                                                </Text>
                                                                 <Text size="sm" mt={6}>Residual/Truth:</Text> 
                                                                 <Text size="sm" style={{
                                                                     whiteSpace: 'pre-wrap'
@@ -390,7 +414,9 @@ export default function AuthHome() {
                                                     <Text fw={600}>Extraneous solutions</Text>
                                                     <Stack gap={4} mt="xs">
                                                         {parsed.verification.extraneous_solutions.map((sol, index) => (
-                                                            <LatexInline key={`extraneous-${index}`} tex={sol} />
+                                                            <Text key={`extraneous-${index}`} size="sm">
+                                                                {renderTextWithLatex(sol)}
+                                                            </Text>
                                                         ))}
                                                     </Stack>
                                                 </>

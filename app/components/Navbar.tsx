@@ -32,6 +32,9 @@ export default function Navbar() {
              <NavLink
                 key={query.id}
                 label={<LatexInline tex={query.equation || ''} />}
+                style={{
+                  lineClamp: 1
+                }}
              />
          ))}
       </AppShell.Section> 

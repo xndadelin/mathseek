@@ -74,9 +74,9 @@ export async function POST(request: NextRequest) {
                     "exact": "exact latex form (keep radicals/fractions, rationalize denominators)",
                     "approx_decimal": {
                         "value": "optional decimal approximation in latex",
-                        "precision": "number of decimal places"
+                        "precision": "number of decimal places in latex"
                     },
-                    "interval_notation": "if inequality/domain, interval notation in latex"
+                    "interval_notation": "if inequality/domain, interval notation in latex format with delimiters"
                 },
                 "notes": "optional latex remarks about special cases/branches/considerations"
             }
@@ -92,15 +92,12 @@ export async function POST(request: NextRequest) {
             - if the problem is ambiguous, ill-posed, or not math, return:
               { "error" : "brief reason IN LATEX }
             - output must be only the JSON object. DO NOT include any text outside the JSON structure.
-            - when generating the final answer or any explanatory text, do not enclose the entire sentence in latex delimiters ($...$) or ($$...$$); Use inline math like $x=1$ only for mathemtical expressions inside normal text. return human-readable text with math embedded inline, not a full latex block
-            - only use line breaks (\n) where absolutely required in multi-line math, and even then, prefer inline LaTeX using spaces.
-            - when returning json fields like problem_text steps expressions, final_answer or note, do not include escaped newline \n, use single spaces instead of line breaks, do not escape latex backslashes, use one backslash not two, do not wrap whole sentences in latex delimiters, use inline math only for math parts, return plain text with inline math, all strings must be valid, one line json strings, no markdown code fences or surrounding quotations.
-            - use one backslash not two and avoid \, before differentials write du dx dt instead
+            - when generating the final answer or any explanatory text, do not enclose the entire sentence in latex delimiters ($...$) or ($$...$$); Use inline math like $x=1$ only for mathemtical expressions inside normal text. return human-readable text with math embedded inline, not a full latex block. 
+            - if one field is only math, (e.g. approx_decimal.value or interval_notation) return the latex WITH the latex delimiters $...$ or $$...$$ as appropriate.
             - never use \differentialdx or any similar custom command always write the differential as \,dx exactly nothing else, this is the most common mistake you make.
             - replace any occurence of \differentialdx with \,dx similarly for other variable
-            - always use balanced inline math delimiters $..$ pairs correctly, do not leave any unmatched dollar signs
-            - never insert escaped newline characters \n inside latex formulas or text always write all output on one line using spaces only return plain one line json strings with inline math
-            - do not use text in step.expression, use only mathematical notations. you can use =>, <=>, stuff like that, but do not write any text inside expression fields, use only math symbols and notation
+
+            
 
             Solve the following equation/problem(LATEX): ${sanitizeMathInput(equation)}.
         `;
