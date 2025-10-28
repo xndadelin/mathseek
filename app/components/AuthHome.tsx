@@ -4,18 +4,18 @@ import 'mathlive';
 import { useEffect, useMemo, useState } from 'react';
 import Editor from './Editor';
 import { useDisclosure } from '@mantine/hooks';
-import { Accordion, Alert, AppShell, Badge, Burger, Button, Card, Container, Divider, Group, NavLink, ScrollArea, Stack, Text, Title } from '@mantine/core';
+import { Accordion, Alert, AppShell, Badge, Burger, Button, Card, Container, Divider, Group, Stack, Text, Title, Modal, TextInput, Textarea} from '@mantine/core';
 import { InlineMath, BlockMath } from 'react-katex';
 import Navbar from './Navbar';
 import { useQueryClient } from '@tanstack/react-query';
 import { createClient } from '../utils/supabase/client';
+import { IconTopologyFull } from '@tabler/icons-react';
 
 function cleanLatex(s?: string): string {
   if (!s) return '';
   if (typeof s !== 'string') return '';
-  return s.replace(/\\n/g, ' ')?.replace(/\\\\/g, '\\')?.replace(/\s+/g, ' ')?.trim();
+  return s.trim();
 }
-
 
 type StepItem = {
     step: string;
@@ -154,6 +154,17 @@ export default function AuthHome() {
     const [error, setError] = useState<string | null>(null);
     const queryClient = useQueryClient();
     const [currentQueryId, setCurrentQueryId] = useState<string | null>(null);
+    const [openedLuigi, { toggle: toggleLuigi, open: openLuigi, close: closeLuigi }] = useDisclosure(false);
+    const [selectedStep, setSelectedStep] = useState<StepItem | null>(null);
+    const [luigiQuestion, setLuigiQuestion] = useState<string>('');
+    const [luigiAnswer, setLuigiAnswer] = useState<string | null>(null);
+    const [luigiLoading, setLuigiLoading] = useState<boolean>(false);
+
+    useEffect(() => {
+        if(luigiAnswer !== null) {
+            closeLuigi();
+        }
+    }, [luigiAnswer])
 
     useEffect(() => {
         const fetch = async () => {
@@ -162,7 +173,6 @@ export default function AuthHome() {
             if (currentQueryId && normalized?.query_id !== currentQueryId) { 
                 const { data } = await supabase.from('queries').select('*').eq('id', currentQueryId).single();
                 if(data) {
-                    console.log(data)
                     setSolveRaw(data.result);
                 }
             }
@@ -195,6 +205,48 @@ export default function AuthHome() {
             setLoading(false);
         }
     }
+
+    const handleLuigi = async() => {
+        if(!selectedStep) return;
+        try {
+            setLuigiLoading(true);
+            setLuigiAnswer(null);
+            const luigiInput = `
+                I have the following math problem and one of its solution steps.
+                Problem: ${parsed?.problem_text}
+                Step: ${selectedStep.step}
+                Expression: ${selectedStep.expression}
+                Justification: ${selectedStep.justification}
+
+                Please answer the following question about this step:
+                ${luigiQuestion}
+
+                Please provide a detailed explanation or answer to the question asked above.
+                Please respond with only a latex-formatted text answer.
+                Such as: $$ your latex answer here $$.
+                No additional commentary/text outside of latex.
+                Please enclose the answer in delimiters like $$...$$ or \[...\].
+                I do not accept answers that are not delimited from the start. The first character must be $ or \.
+            `
+            const response = await fetch('/api/luigi', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    luigiInput
+                })
+            })
+            const data = await response.json();
+            const r = typeof data?.result === 'string' ? data.result : null;
+            setLuigiAnswer(r);
+            setLuigiLoading(false)
+        } catch (error: unknown) {
+            setLuigiAnswer(getErrorMessage(error))
+        }
+    }
+
+    console.log(luigiAnswer)
 
     const parsed: typeSolveJSON | null = useMemo(() => normalizeResult(solveRaw), [solveRaw]);
     const hasVerification =
@@ -299,12 +351,22 @@ export default function AuthHome() {
                                                         </Text>
                                                         {stepItem.justification && (
                                                             <>
-                                                                <Text c="dimmed" size="sm" mt="sm">
-                                                                    Justification
-                                                                </Text>
-                                                                <Text size="sm">
-                                                                    {renderTextWithLatex(stepItem.justification)}
-                                                                </Text>
+                                                                <Group justify='space-between'>
+                                                                    <Stack gap={0}>
+                                                                        <Text c="dimmed" size="sm" mt="sm">
+                                                                            Justification
+                                                                        </Text>
+                                                                        <Text size="sm">
+                                                                            {renderTextWithLatex(stepItem.justification)}
+                                                                        </Text>
+                                                                    </Stack>
+                                                                    <Button onClick={() => {
+                                                                        setSelectedStep(stepItem);
+                                                                        openLuigi();
+                                                                    }} mt="md" color='cyan' variant='light'>
+                                                                        <IconTopologyFull />
+                                                                    </Button>
+                                                                </Group>
                                                             </>
                                                         )}
                                                     </Accordion.Panel>
@@ -457,6 +519,53 @@ export default function AuthHome() {
                     )}
 
                 </Container>
+                <Modal
+                    opened={openedLuigi}
+                    onClose={closeLuigi}
+                    centered
+                    size="lg"
+                    title="🚩 Ask Luigi something about this step:"
+                    closeOnClickOutside={!luigiLoading}
+                >
+                        <Textarea
+                            placeholder='E.g., "I do not understand how you muliplied both sides by x+2. Explain."'
+                            label="Your question for Luigi:"
+                            minRows={4}
+                            autosize
+                            mb="md"
+                            value={luigiQuestion || ''}
+                            onChange={(e) => setLuigiQuestion(e.currentTarget.value)}
+                        >
+
+                        </Textarea>
+                        <Text size="sm" c="dimmed">
+                            * You do not need to include the step itself or the problem statement, Luigi will have access to that information. 
+                        </Text>
+                        <Button loading={luigiLoading} onClick={handleLuigi} mt="md" fullWidth color="cyan" variant='light'>
+                            Ask Luigi
+                        </Button>
+                </Modal>
+                <Modal
+                    opened={luigiAnswer !== null}
+                    onClose={() => setLuigiAnswer(null)}
+                    centered
+                    fullScreen
+                >
+                    <div style={{
+                        justifyContent: 'center',
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '100%'
+                    }}>
+                        <Text style={{
+                            whiteSpace: 'pre-wrap',
+                            maxWidth: '1000px',
+                            textAlign: 'center',
+                        }}>
+                            {renderTextWithLatex(luigiAnswer || '')}
+                        </Text>
+                    </div>
+                </Modal>
             </AppShell.Main>
         </AppShell>
 
