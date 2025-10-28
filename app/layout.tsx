@@ -4,7 +4,6 @@ import '@mantine/core/styles.css';
 import { Providers } from "./providers";
 import 'katex/dist/katex.min.css';
 
-
 export const metadata: Metadata = {
   title: "MathSeek",
   description: "A math-solver platform powered by AI.",

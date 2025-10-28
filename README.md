@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
+  <a href="https://moonshot.hackclub.com" target="_blank">
+    <img src="https://hc-cdn.hel1.your-objectstorage.com/s/v3/35ad2be8c916670f3e1ac63c1df04d76a4b337d1_moonshot.png" 
+         alt="This project is part of Moonshot, a 4-day hackathon in Florida visiting Kennedy Space Center and Universal Studios!" 
+         style="width: 100%;">
+  </a>
+</div>
 
-## Getting Started
+# ➡️ mathseek
 
-First, run the development server:
+mathseek is an open-source web application, AI-powered math problem solver that provides step-by-step solutions and explanations for a wide range of mathematical concepts. whether you are struggling with algebra, calculus, or geometry,
+mathseek is here to help you understand and get the answers you need
 
+## Some key features
+- user-friendly interface
+- luigi - AI assistant
+- unlimited usage for free
+- uses DeepSeek API's
+- provides latex formated data for best experience
+- history of queries
+
+## Requirements to run it on your localhost
+- Node.js 20+
+- Yarn
+- Docker
+- Supabase instance
+
+## Local setup
+1. Clone the repo
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/xndadelin/mathseek.git && cd mathseek
+```
+2. Copy environment file
+cp .env.example .env
+
+3. Set enviroment variables in .env
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+DEEPSEEK_API_KEY=
+``` 
+
+4. Create supabase table
+```bash
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.queries (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  equation text NOT NULL,
+  result jsonb NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT (now() AT TIME ZONE 'utc'::text),
+  CONSTRAINT queries_pkey PRIMARY KEY (id),
+  CONSTRAINT queries_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+);
+
+# create your own rls policies
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Production
+```bash
+yarn build
+yarn start
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Docker
+Build: 
+```bash
+docker build -t math .
+```
+Run:
+```bash
+docker run --env-file .env -p 3000:3000 math
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Contributing
+open issues or PRs on Github. Please write concise and clear commit message

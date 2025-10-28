@@ -9,7 +9,9 @@ const queryClient = new QueryClient();
 export function Providers({ children} : { children: ReactNode }) {
     return (
         <QueryClientProvider client={queryClient}>
-            <MantineProvider defaultColorScheme="dark" withGlobalClasses>
+            <MantineProvider theme={{
+                fontFamily: 'Poppins, Arial, Helvetica, sans-serif'
+            }} defaultColorScheme="dark" withGlobalClasses>
                 {children}
             </MantineProvider>
         </QueryClientProvider>
